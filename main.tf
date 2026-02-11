@@ -63,9 +63,12 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   dynamic "certificate_common_names" {
     for_each = each.value.certificate_common_names != null ? [each.value.certificate_common_names] : []
     content {
-      common_names {
-        certificate_common_name       = certificate_common_names.value.common_names.certificate_common_name
-        certificate_issuer_thumbprint = certificate_common_names.value.common_names.certificate_issuer_thumbprint
+      dynamic "common_names" {
+        for_each = certificate_common_names.value.common_names
+        content {
+          certificate_common_name       = common_names.value.certificate_common_name
+          certificate_issuer_thumbprint = common_names.value.certificate_issuer_thumbprint
+        }
       }
       x509_store_name = certificate_common_names.value.x509_store_name
     }
@@ -119,9 +122,12 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   dynamic "reverse_proxy_certificate_common_names" {
     for_each = each.value.reverse_proxy_certificate_common_names != null ? [each.value.reverse_proxy_certificate_common_names] : []
     content {
-      common_names {
-        certificate_common_name       = reverse_proxy_certificate_common_names.value.common_names.certificate_common_name
-        certificate_issuer_thumbprint = reverse_proxy_certificate_common_names.value.common_names.certificate_issuer_thumbprint
+      dynamic "common_names" {
+        for_each = reverse_proxy_certificate_common_names.value.common_names
+        content {
+          certificate_common_name       = common_names.value.certificate_common_name
+          certificate_issuer_thumbprint = common_names.value.certificate_issuer_thumbprint
+        }
       }
       x509_store_name = reverse_proxy_certificate_common_names.value.x509_store_name
     }

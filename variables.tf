@@ -108,7 +108,7 @@ EOT
       }))
       capacities           = optional(map(string))
       client_endpoint_port = number
-      durability_level     = optional(string, "Bronze")
+      durability_level     = optional(string) # Default: "Bronze"
       ephemeral_ports = optional(object({
         end_port   = number
         start_port = number
@@ -133,10 +133,10 @@ EOT
       x509_store_name      = string
     }))
     certificate_common_names = optional(object({
-      common_names = object({
+      common_names = list(object({
         certificate_common_name       = string
         certificate_issuer_thumbprint = optional(string)
-      })
+      }))
       x509_store_name = string
     }))
     client_certificate_common_name = optional(object({
@@ -165,30 +165,46 @@ EOT
       x509_store_name      = string
     }))
     reverse_proxy_certificate_common_names = optional(object({
-      common_names = object({
+      common_names = list(object({
         certificate_common_name       = string
         certificate_issuer_thumbprint = optional(string)
-      })
+      }))
       x509_store_name = string
     }))
     upgrade_policy = optional(object({
       delta_health_policy = optional(object({
-        max_delta_unhealthy_applications_percent         = optional(number, 0)
-        max_delta_unhealthy_nodes_percent                = optional(number, 0)
-        max_upgrade_domain_delta_unhealthy_nodes_percent = optional(number, 0)
+        max_delta_unhealthy_applications_percent         = optional(number) # Default: 0
+        max_delta_unhealthy_nodes_percent                = optional(number) # Default: 0
+        max_upgrade_domain_delta_unhealthy_nodes_percent = optional(number) # Default: 0
       }))
       force_restart_enabled        = optional(bool)
-      health_check_retry_timeout   = optional(string, "00:45:00")
-      health_check_stable_duration = optional(string, "00:01:00")
-      health_check_wait_duration   = optional(string, "00:00:30")
+      health_check_retry_timeout   = optional(string) # Default: "00:45:00"
+      health_check_stable_duration = optional(string) # Default: "00:01:00"
+      health_check_wait_duration   = optional(string) # Default: "00:00:30"
       health_policy = optional(object({
-        max_unhealthy_applications_percent = optional(number, 0)
-        max_unhealthy_nodes_percent        = optional(number, 0)
+        max_unhealthy_applications_percent = optional(number) # Default: 0
+        max_unhealthy_nodes_percent        = optional(number) # Default: 0
       }))
-      upgrade_domain_timeout            = optional(string, "02:00:00")
-      upgrade_replica_set_check_timeout = optional(string, "10675199.02:48:05.4775807")
-      upgrade_timeout                   = optional(string, "12:00:00")
+      upgrade_domain_timeout            = optional(string) # Default: "02:00:00"
+      upgrade_replica_set_check_timeout = optional(string) # Default: "10675199.02:48:05.4775807"
+      upgrade_timeout                   = optional(string) # Default: "12:00:00"
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        length(v.certificate_common_names.common_names) >= 1
+      )
+    ])
+    error_message = "Each common_names list must contain at least 1 items"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        length(v.reverse_proxy_certificate_common_names.common_names) >= 1
+      )
+    ])
+    error_message = "Each common_names list must contain at least 1 items"
+  }
 }
 
