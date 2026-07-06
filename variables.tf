@@ -206,5 +206,171 @@ EOT
     ])
     error_message = "Each common_names list must contain at least 1 items"
   }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.tenant_id)))
+      )
+    ])
+    error_message = "must be a valid UUID"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.cluster_application_id)))
+      )
+    ])
+    error_message = "must be a valid UUID"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.client_application_id)))
+      )
+    ])
+    error_message = "must be a valid UUID"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.certificate_common_names == null || (length(v.certificate_common_names.x509_store_name) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.reverse_proxy_certificate_common_names == null || (length(v.reverse_proxy_certificate_common_names.x509_store_name) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.client_certificate_common_name == null || (length(v.client_certificate_common_name.common_name) > 0)
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.client_certificate_common_name == null || (v.client_certificate_common_name.issuer_thumbprint == null || (length(v.client_certificate_common_name.issuer_thumbprint) > 0))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.upgrade_policy == null || (v.upgrade_policy.health_policy == null || (v.upgrade_policy.health_policy.max_unhealthy_applications_percent == null || (v.upgrade_policy.health_policy.max_unhealthy_applications_percent >= 0 && v.upgrade_policy.health_policy.max_unhealthy_applications_percent <= 100)))
+      )
+    ])
+    error_message = "must be between 0 and 100"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.upgrade_policy == null || (v.upgrade_policy.health_policy == null || (v.upgrade_policy.health_policy.max_unhealthy_nodes_percent == null || (v.upgrade_policy.health_policy.max_unhealthy_nodes_percent >= 0 && v.upgrade_policy.health_policy.max_unhealthy_nodes_percent <= 100)))
+      )
+    ])
+    error_message = "must be between 0 and 100"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent >= 0 && v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent <= 100)))
+      )
+    ])
+    error_message = "must be between 0 and 100"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent >= 0 && v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent <= 100)))
+      )
+    ])
+    error_message = "must be between 0 and 100"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent == null || (v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent >= 0 && v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent <= 100)))
+      )
+    ])
+    error_message = "must be between 0 and 100"
+  }
+  # --- Unconfirmed validation candidates, derived from azurerm_service_fabric_cluster's provider source ---
+  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
+  # or a path that crosses a list-typed block (needs its own for_each wrapping).
+  # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: resource_group_name
+  #   condition: length(value) <= 90
+  #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
+  #   source:    [from resourcegroups.ValidateName: invalid when len(value) > 90]
+  # path: resource_group_name
+  #   condition: !endswith(value, ".")
+  #   message:   [from resourcegroups.ValidateName: must not end with "."]
+  #   source:    [from resourcegroups.ValidateName: must not end with "."]
+  # path: resource_group_name
+  #   condition: length(value) != 0
+  #   message:   [from resourcegroups.ValidateName: invalid when len(value) == 0]
+  #   source:    [from resourcegroups.ValidateName: invalid when len(value) == 0]
+  # path: resource_group_name
+  #   source:    [from resourcegroups.ValidateName] !matched
+  # path: location
+  #   source:    location.EnhancedValidate: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: reliability_level
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: upgrade_mode
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: service_fabric_zonal_upgrade_mode
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: vmss_zonal_upgrade_mode
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: certificate_common_names.common_names.certificate_common_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: certificate_common_names.common_names.certificate_issuer_thumbprint
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: reverse_proxy_certificate_common_names.common_names.certificate_common_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: reverse_proxy_certificate_common_names.common_names.certificate_issuer_thumbprint
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: upgrade_policy.health_check_retry_timeout
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.health_check_stable_duration
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.health_check_wait_duration
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.upgrade_domain_timeout
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.upgrade_replica_set_check_timeout
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.upgrade_timeout
+  #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: node_type.reverse_proxy_endpoint_port
+  #   source:    validate.PortNumber: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: node_type.durability_level
+  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: tags
+  #   condition: length(value) <= 50
+  #   message:   [from tags.Validate: invalid when len(value) > 50]
+  #   source:    [from tags.Validate: invalid when len(value) > 50]
+  # path: tags
+  #   condition: length(value) <= 512
+  #   message:   [from tags.Validate: invalid when len(value) > 512]
+  #   source:    [from tags.Validate: invalid when len(value) > 512]
+  # path: tags
+  #   source:    [from tags.Validate] err != nil
+  # path: tags
+  #   condition: length(value) <= 256
+  #   message:   [from tags.Validate: invalid when len(value) > 256]
+  #   source:    [from tags.Validate: invalid when len(value) > 256]
 }
 
