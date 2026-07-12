@@ -193,7 +193,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.service_fabric_clusters : (
-        length(v.certificate_common_names.common_names) >= 1
+        v.certificate_common_names == null || (length(v.certificate_common_names.common_names) >= 1)
       )
     ])
     error_message = "Each common_names list must contain at least 1 items"
@@ -201,7 +201,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.service_fabric_clusters : (
-        length(v.reverse_proxy_certificate_common_names.common_names) >= 1
+        v.reverse_proxy_certificate_common_names == null || (length(v.reverse_proxy_certificate_common_names.common_names) >= 1)
       )
     ])
     error_message = "Each common_names list must contain at least 1 items"
