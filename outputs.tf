@@ -1,3 +1,7 @@
+output "service_fabric_clusters_id" {
+  description = "Map of id values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.id }
+}
 output "service_fabric_clusters_add_on_features" {
   description = "Map of add_on_features values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
   value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.add_on_features }
