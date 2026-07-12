@@ -101,7 +101,7 @@ EOT
     service_fabric_zonal_upgrade_mode = optional(string)
     tags                              = optional(map(string))
     vmss_zonal_upgrade_mode           = optional(string)
-    node_type = object({
+    node_type = list(object({
       application_ports = optional(object({
         end_port   = number
         start_port = number
@@ -121,7 +121,7 @@ EOT
       name                        = string
       placement_properties        = optional(map(string))
       reverse_proxy_endpoint_port = optional(number)
-    })
+    }))
     azure_active_directory = optional(object({
       client_application_id  = string
       cluster_application_id = string
@@ -139,15 +139,15 @@ EOT
       }))
       x509_store_name = string
     }))
-    client_certificate_common_name = optional(object({
+    client_certificate_common_name = optional(list(object({
       common_name       = string
       is_admin          = bool
       issuer_thumbprint = optional(string)
-    }))
-    client_certificate_thumbprint = optional(object({
+    })))
+    client_certificate_thumbprint = optional(list(object({
       is_admin   = bool
       thumbprint = string
-    }))
+    })))
     diagnostics_config = optional(object({
       blob_endpoint              = string
       protected_account_key_name = string
@@ -155,10 +155,10 @@ EOT
       storage_account_name       = string
       table_endpoint             = string
     }))
-    fabric_settings = optional(object({
+    fabric_settings = optional(list(object({
       name       = string
       parameters = optional(map(string))
-    }))
+    })))
     reverse_proxy_certificate = optional(object({
       thumbprint           = string
       thumbprint_secondary = optional(string)
@@ -206,102 +206,6 @@ EOT
     ])
     error_message = "Each common_names list must contain at least 1 items"
   }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.tenant_id)))
-      )
-    ])
-    error_message = "must be a valid UUID"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.cluster_application_id)))
-      )
-    ])
-    error_message = "must be a valid UUID"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.azure_active_directory == null || (can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.azure_active_directory.client_application_id)))
-      )
-    ])
-    error_message = "must be a valid UUID"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.certificate_common_names == null || (length(v.certificate_common_names.x509_store_name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.reverse_proxy_certificate_common_names == null || (length(v.reverse_proxy_certificate_common_names.x509_store_name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.client_certificate_common_name == null || (length(v.client_certificate_common_name.common_name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.client_certificate_common_name == null || (v.client_certificate_common_name.issuer_thumbprint == null || (length(v.client_certificate_common_name.issuer_thumbprint) > 0))
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.upgrade_policy == null || (v.upgrade_policy.health_policy == null || (v.upgrade_policy.health_policy.max_unhealthy_applications_percent == null || (v.upgrade_policy.health_policy.max_unhealthy_applications_percent >= 0 && v.upgrade_policy.health_policy.max_unhealthy_applications_percent <= 100)))
-      )
-    ])
-    error_message = "must be between 0 and 100"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.upgrade_policy == null || (v.upgrade_policy.health_policy == null || (v.upgrade_policy.health_policy.max_unhealthy_nodes_percent == null || (v.upgrade_policy.health_policy.max_unhealthy_nodes_percent >= 0 && v.upgrade_policy.health_policy.max_unhealthy_nodes_percent <= 100)))
-      )
-    ])
-    error_message = "must be between 0 and 100"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent >= 0 && v.upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent <= 100)))
-      )
-    ])
-    error_message = "must be between 0 and 100"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent == null || (v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent >= 0 && v.upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent <= 100)))
-      )
-    ])
-    error_message = "must be between 0 and 100"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.service_fabric_clusters : (
-        v.upgrade_policy == null || (v.upgrade_policy.delta_health_policy == null || (v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent == null || (v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent >= 0 && v.upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent <= 100)))
-      )
-    ])
-    error_message = "must be between 0 and 100"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_service_fabric_cluster's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -330,16 +234,37 @@ EOT
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: vmss_zonal_upgrade_mode
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
+  # path: azure_active_directory.tenant_id
+  #   condition: can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value))
+  #   message:   must be a valid UUID
+  # path: azure_active_directory.cluster_application_id
+  #   condition: can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value))
+  #   message:   must be a valid UUID
+  # path: azure_active_directory.client_application_id
+  #   condition: can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value))
+  #   message:   must be a valid UUID
   # path: certificate_common_names.common_names.certificate_common_name
   #   condition: length(value) > 0
   #   message:   must not be empty
   # path: certificate_common_names.common_names.certificate_issuer_thumbprint
   #   condition: length(value) > 0
   #   message:   must not be empty
+  # path: certificate_common_names.x509_store_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: reverse_proxy_certificate_common_names.common_names.certificate_common_name
   #   condition: length(value) > 0
   #   message:   must not be empty
   # path: reverse_proxy_certificate_common_names.common_names.certificate_issuer_thumbprint
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: reverse_proxy_certificate_common_names.x509_store_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: client_certificate_common_name.common_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: client_certificate_common_name.issuer_thumbprint
   #   condition: length(value) > 0
   #   message:   must not be empty
   # path: upgrade_policy.health_check_retry_timeout
@@ -354,6 +279,21 @@ EOT
   #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
   # path: upgrade_policy.upgrade_timeout
   #   source:    serviceFabricValidate.UpgradeTimeout: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: upgrade_policy.health_policy.max_unhealthy_applications_percent
+  #   condition: value >= 0 && value <= 100
+  #   message:   must be between 0 and 100
+  # path: upgrade_policy.health_policy.max_unhealthy_nodes_percent
+  #   condition: value >= 0 && value <= 100
+  #   message:   must be between 0 and 100
+  # path: upgrade_policy.delta_health_policy.max_delta_unhealthy_applications_percent
+  #   condition: value >= 0 && value <= 100
+  #   message:   must be between 0 and 100
+  # path: upgrade_policy.delta_health_policy.max_delta_unhealthy_nodes_percent
+  #   condition: value >= 0 && value <= 100
+  #   message:   must be between 0 and 100
+  # path: upgrade_policy.delta_health_policy.max_upgrade_domain_delta_unhealthy_nodes_percent
+  #   condition: value >= 0 && value <= 100
+  #   message:   must be between 0 and 100
   # path: node_type.reverse_proxy_endpoint_port
   #   source:    validate.PortNumber: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
   # path: node_type.durability_level

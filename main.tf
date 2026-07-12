@@ -14,32 +14,35 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   tags                              = each.value.tags
   vmss_zonal_upgrade_mode           = each.value.vmss_zonal_upgrade_mode
 
-  node_type {
-    dynamic "application_ports" {
-      for_each = each.value.node_type.application_ports != null ? [each.value.node_type.application_ports] : []
-      content {
-        end_port   = application_ports.value.end_port
-        start_port = application_ports.value.start_port
+  dynamic "node_type" {
+    for_each = each.value.node_type
+    content {
+      dynamic "application_ports" {
+        for_each = node_type.value.application_ports != null ? [node_type.value.application_ports] : []
+        content {
+          end_port   = application_ports.value.end_port
+          start_port = application_ports.value.start_port
+        }
       }
-    }
-    capacities           = each.value.node_type.capacities
-    client_endpoint_port = each.value.node_type.client_endpoint_port
-    durability_level     = each.value.node_type.durability_level
-    dynamic "ephemeral_ports" {
-      for_each = each.value.node_type.ephemeral_ports != null ? [each.value.node_type.ephemeral_ports] : []
-      content {
-        end_port   = ephemeral_ports.value.end_port
-        start_port = ephemeral_ports.value.start_port
+      capacities           = node_type.value.capacities
+      client_endpoint_port = node_type.value.client_endpoint_port
+      durability_level     = node_type.value.durability_level
+      dynamic "ephemeral_ports" {
+        for_each = node_type.value.ephemeral_ports != null ? [node_type.value.ephemeral_ports] : []
+        content {
+          end_port   = ephemeral_ports.value.end_port
+          start_port = ephemeral_ports.value.start_port
+        }
       }
+      http_endpoint_port          = node_type.value.http_endpoint_port
+      instance_count              = node_type.value.instance_count
+      is_primary                  = node_type.value.is_primary
+      is_stateless                = node_type.value.is_stateless
+      multiple_availability_zones = node_type.value.multiple_availability_zones
+      name                        = node_type.value.name
+      placement_properties        = node_type.value.placement_properties
+      reverse_proxy_endpoint_port = node_type.value.reverse_proxy_endpoint_port
     }
-    http_endpoint_port          = each.value.node_type.http_endpoint_port
-    instance_count              = each.value.node_type.instance_count
-    is_primary                  = each.value.node_type.is_primary
-    is_stateless                = each.value.node_type.is_stateless
-    multiple_availability_zones = each.value.node_type.multiple_availability_zones
-    name                        = each.value.node_type.name
-    placement_properties        = each.value.node_type.placement_properties
-    reverse_proxy_endpoint_port = each.value.node_type.reverse_proxy_endpoint_port
   }
 
   dynamic "azure_active_directory" {
@@ -75,7 +78,7 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   }
 
   dynamic "client_certificate_common_name" {
-    for_each = each.value.client_certificate_common_name != null ? [each.value.client_certificate_common_name] : []
+    for_each = each.value.client_certificate_common_name != null ? each.value.client_certificate_common_name : []
     content {
       common_name       = client_certificate_common_name.value.common_name
       is_admin          = client_certificate_common_name.value.is_admin
@@ -84,7 +87,7 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   }
 
   dynamic "client_certificate_thumbprint" {
-    for_each = each.value.client_certificate_thumbprint != null ? [each.value.client_certificate_thumbprint] : []
+    for_each = each.value.client_certificate_thumbprint != null ? each.value.client_certificate_thumbprint : []
     content {
       is_admin   = client_certificate_thumbprint.value.is_admin
       thumbprint = client_certificate_thumbprint.value.thumbprint
@@ -103,7 +106,7 @@ resource "azurerm_service_fabric_cluster" "service_fabric_clusters" {
   }
 
   dynamic "fabric_settings" {
-    for_each = each.value.fabric_settings != null ? [each.value.fabric_settings] : []
+    for_each = each.value.fabric_settings != null ? each.value.fabric_settings : []
     content {
       name       = fabric_settings.value.name
       parameters = fabric_settings.value.parameters
