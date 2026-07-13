@@ -108,7 +108,7 @@ EOT
       }))
       capacities           = optional(map(string))
       client_endpoint_port = number
-      durability_level     = optional(string) # Default: "Bronze"
+      durability_level     = optional(string)
       ephemeral_ports = optional(object({
         end_port   = number
         start_port = number
@@ -173,23 +173,31 @@ EOT
     }))
     upgrade_policy = optional(object({
       delta_health_policy = optional(object({
-        max_delta_unhealthy_applications_percent         = optional(number) # Default: 0
-        max_delta_unhealthy_nodes_percent                = optional(number) # Default: 0
-        max_upgrade_domain_delta_unhealthy_nodes_percent = optional(number) # Default: 0
+        max_delta_unhealthy_applications_percent         = optional(number)
+        max_delta_unhealthy_nodes_percent                = optional(number)
+        max_upgrade_domain_delta_unhealthy_nodes_percent = optional(number)
       }))
       force_restart_enabled        = optional(bool)
-      health_check_retry_timeout   = optional(string) # Default: "00:45:00"
-      health_check_stable_duration = optional(string) # Default: "00:01:00"
-      health_check_wait_duration   = optional(string) # Default: "00:00:30"
+      health_check_retry_timeout   = optional(string)
+      health_check_stable_duration = optional(string)
+      health_check_wait_duration   = optional(string)
       health_policy = optional(object({
-        max_unhealthy_applications_percent = optional(number) # Default: 0
-        max_unhealthy_nodes_percent        = optional(number) # Default: 0
+        max_unhealthy_applications_percent = optional(number)
+        max_unhealthy_nodes_percent        = optional(number)
       }))
-      upgrade_domain_timeout            = optional(string) # Default: "02:00:00"
-      upgrade_replica_set_check_timeout = optional(string) # Default: "10675199.02:48:05.4775807"
-      upgrade_timeout                   = optional(string) # Default: "12:00:00"
+      upgrade_domain_timeout            = optional(string)
+      upgrade_replica_set_check_timeout = optional(string)
+      upgrade_timeout                   = optional(string)
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.service_fabric_clusters : (
+        length(v.node_type) >= 1
+      )
+    ])
+    error_message = "Each node_type list must contain at least 1 items"
+  }
   validation {
     condition = alltrue([
       for k, v in var.service_fabric_clusters : (
