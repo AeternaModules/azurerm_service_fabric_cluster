@@ -8,15 +8,15 @@ output "service_fabric_clusters_add_on_features" {
 }
 output "service_fabric_clusters_azure_active_directory" {
   description = "Map of azure_active_directory values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.azure_active_directory if v.azure_active_directory != null && length(v.azure_active_directory) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.azure_active_directory) if v.azure_active_directory != null && length(v.azure_active_directory) > 0 }
 }
 output "service_fabric_clusters_certificate" {
   description = "Map of certificate values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.certificate if v.certificate != null && length(v.certificate) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.certificate) if v.certificate != null && length(v.certificate) > 0 }
 }
 output "service_fabric_clusters_certificate_common_names" {
   description = "Map of certificate_common_names values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.certificate_common_names if v.certificate_common_names != null && length(v.certificate_common_names) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.certificate_common_names) if v.certificate_common_names != null && length(v.certificate_common_names) > 0 }
 }
 output "service_fabric_clusters_client_certificate_common_name" {
   description = "Map of client_certificate_common_name values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
@@ -36,7 +36,7 @@ output "service_fabric_clusters_cluster_endpoint" {
 }
 output "service_fabric_clusters_diagnostics_config" {
   description = "Map of diagnostics_config values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.diagnostics_config if v.diagnostics_config != null && length(v.diagnostics_config) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.diagnostics_config) if v.diagnostics_config != null && length(v.diagnostics_config) > 0 }
 }
 output "service_fabric_clusters_fabric_settings" {
   description = "Map of fabric_settings values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
@@ -68,11 +68,11 @@ output "service_fabric_clusters_resource_group_name" {
 }
 output "service_fabric_clusters_reverse_proxy_certificate" {
   description = "Map of reverse_proxy_certificate values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.reverse_proxy_certificate if v.reverse_proxy_certificate != null && length(v.reverse_proxy_certificate) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.reverse_proxy_certificate) if v.reverse_proxy_certificate != null && length(v.reverse_proxy_certificate) > 0 }
 }
 output "service_fabric_clusters_reverse_proxy_certificate_common_names" {
   description = "Map of reverse_proxy_certificate_common_names values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.reverse_proxy_certificate_common_names if v.reverse_proxy_certificate_common_names != null && length(v.reverse_proxy_certificate_common_names) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.reverse_proxy_certificate_common_names) if v.reverse_proxy_certificate_common_names != null && length(v.reverse_proxy_certificate_common_names) > 0 }
 }
 output "service_fabric_clusters_service_fabric_zonal_upgrade_mode" {
   description = "Map of service_fabric_zonal_upgrade_mode values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
@@ -88,7 +88,7 @@ output "service_fabric_clusters_upgrade_mode" {
 }
 output "service_fabric_clusters_upgrade_policy" {
   description = "Map of upgrade_policy values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
-  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => v.upgrade_policy if v.upgrade_policy != null && length(v.upgrade_policy) > 0 }
+  value       = { for k, v in azurerm_service_fabric_cluster.service_fabric_clusters : k => one(v.upgrade_policy) if v.upgrade_policy != null && length(v.upgrade_policy) > 0 }
 }
 output "service_fabric_clusters_vm_image" {
   description = "Map of vm_image values across all service_fabric_clusters, keyed the same as var.service_fabric_clusters"
